@@ -86,6 +86,6 @@ int main(int argc, char** argv)
                                 
   N = 10;
 
-  cuda_malloc_managed_example(N);
+  cuda_malloc_managed_test(N);
 }
 

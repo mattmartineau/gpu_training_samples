@@ -19,13 +19,21 @@ __global__ void warmup_kernel(int N, int* a)
   }
 }
 
-void print_ints(int N, int* a, const char* nvtx_name)
+__global__ void initialize_a_red(int N, double* a, double val)
 {
-  nvtxRangePush(nvtx_name);
-  for(int i = 0; i < N; ++i) {
-    printf("element %d = %d\n", i, a[i]);
+  int i = blockIdx.x*blockDim.x + threadIdx.x;
+
+  if(i < N) {
+    a[i] = val;
   }
-  nvtxRangePop();
+}
+
+__global__ void multipass_reduction_kernel(int N, double* a, double* sum_private)
+{
+  int i = blockIdx.x*blockDim.x + threadIdx.x;
+  if(i >= N) return;
+
+  // TODO Implement
 }
 
 // CUDA example of multipass reduction
@@ -54,7 +62,7 @@ void reduction_multipass_first_test()
   CHECK_CUDA(cudaMalloc(&sum_private, sizeof(double)*nthreads));
 
   // Perform the reduction
-  // TODO Implement the multipass reduction
+  multipass_reduction_kernel<<<nblocks, block_size>>>(int N, double* a, double* sum_private)
 
   // Let thrust reduce the private sums
   double sum = thrust::reduce(thrust::device,

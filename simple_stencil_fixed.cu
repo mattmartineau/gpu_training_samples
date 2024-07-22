@@ -19,15 +19,6 @@ __global__ void warmup_kernel(int N, int* a)
   }
 }
 
-void print_ints(int N, int* a, const char* nvtx_name)
-{
-  nvtxRangePush(nvtx_name);
-  for(int i = 0; i < N; ++i) {
-    printf("element %d = %d\n", i, a[i]);
-  }
-  nvtxRangePop();
-}
-
 __global__ void initialize_a(int N, int* a)
 {
   int i = blockIdx.x*blockDim.x + threadIdx.x;
@@ -37,8 +28,21 @@ __global__ void initialize_a(int N, int* a)
   }
 }
 
+__global__ void stencil_kernel(int N, int* a_orig, int* a_out)
+{
+  int i = blockIdx.x*blockDim.x + threadIdx.x;
+  if(i >= N) return;
+
+  if(i > 0) {
+    a_out[i-1] += a_orig[i];
+  }
+  if(i < N-1) {
+    a_out[i+1] += a_orig[i];
+  }
+}
+
 // CUDA example with stencil
-void simple_stencil_test(const int N)
+void simple_stencil_fixed_test(const int N)
 {
   printf("\n\n***Running %s\n\n", __func__);
   nvtxRangePush(__func__);
@@ -68,15 +72,21 @@ void simple_stencil_test(const int N)
       }
   }
 
-  // TODO implement the GPU kernel
-  
+  // TODO Fix the kernel
+  stencil_kernel<<<nblocks, block_size>>>(N, a_orig, a_out);
   CHECK_CUDA(cudaDeviceSynchronize());
 
   // Validation
+  int failures = 0;
   for(int i = 0; i < N; ++i) {
       if(a_out[i] != a_ref[i]) {
+          failures++;
           printf("a_out[%d]=%d != a_ref[%d]=%d !!\n", i, a_out[i], i, a_ref[i]);
       }
+  }
+
+  if(failures == 0) {
+      printf("Kernel validates!!\n");
   }
 
   CHECK_CUDA(cudaFree(a_out));
@@ -98,6 +108,6 @@ int main(int argc, char** argv)
   CHECK_CUDA(cudaDeviceSynchronize());
                                 
   N = 512;
-  simple_stencil_test(N);
+  simple_stencil_fixed_test(N);
 }
 
