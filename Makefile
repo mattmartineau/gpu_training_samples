@@ -1,4 +1,4 @@
-#PROF="nsys profile --trace=cuda,nvtx"
+#PROF=nsys profile --trace=cuda,nvtx
 
 cuda_malloc_memset:
 	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse cuda_malloc_memset.cu -o exec_cuda_malloc_memset
@@ -31,6 +31,10 @@ reduction_multipass_first:
 memory_access_unrolling:
 	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse memory_access_unrolling.cu -o exec_memory_access_unrolling
 	${PROF} ./exec_memory_access_unrolling
+
+reduction_multipass_shared:
+	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse reduction_multipass_shared.cu -o exec_reduction_multipass_shared
+	${PROF} ./exec_reduction_multipass_shared
 
 reduction_onepass:
 	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse reduction_onepass.cu -o exec_reduction_onepass
