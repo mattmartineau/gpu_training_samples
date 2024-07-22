@@ -32,3 +32,7 @@ memory_access_unrolling:
 	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse memory_access_unrolling.cu -o exec_memory_access_unrolling
 	${PROF} ./exec_memory_access_unrolling
 
+reduction_onepass:
+	nvcc -O3 -g -arch=sm_80 --extended-lambda --std=c++14 -lcusparse reduction_onepass.cu -o exec_reduction_onepass
+	${PROF} ./exec_reduction_onepass
+

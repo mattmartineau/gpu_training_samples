@@ -19,6 +19,15 @@ __global__ void warmup_kernel(int N, int* a)
   }
 }
 
+__global__ void initialize_a_red(int N, double* a, double val)
+{
+  int i = blockIdx.x*blockDim.x + threadIdx.x;
+
+  if(i < N) {
+    a[i] = val;
+  }
+}
+
 template <int block_size>
 __global__ void onepass_reduction_kernel_test(int N, double* a, double* sum_private)
 {
